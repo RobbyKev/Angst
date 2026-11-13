@@ -1,7 +1,8 @@
 // Modul 7: Tagesschritt – Pool-Verwaltung und Tageslogik.
 import { Store } from './store.js';
 import { el, kopf, heute } from './ui.js';
-import { WERKZEUGE } from './inhalte.js';
+import { WERKZEUGE, MODUL_LINKS } from './inhalte.js';
+import { wofuerAuswahl } from './wofuer.js';
 
 const zufall = (liste) => liste[Math.floor(Math.random() * liste.length)];
 
@@ -106,6 +107,7 @@ export async function renderSchrittForm(main, id) {
   const neu = id === 'neu';
   const s = neu ? { titel: '', normal: '', mini: '', werkzeug: '', aktiv: true } : await Store.get('schrittPool', id);
   if (!s) { location.hash = '#/schritte'; return; }
+  const wofuer = await wofuerAuswahl('wofuerId', s.wofuerId);
 
   const feld = (label, name, wert, mehrzeilig, hilfe) => el('label', { class: 'feld' },
     el('span', { class: 'feld-label' }, label),
@@ -127,6 +129,15 @@ export async function renderSchrittForm(main, id) {
         WERKZEUGE.map((w) => el('option', { value: w.id, selected: s.werkzeug === w.id }, w.name)),
       ),
     ),
+    el('label', { class: 'feld' },
+      el('span', { class: 'feld-label' }, 'Modul (optional)'),
+      el('span', { class: 'leise klein' }, 'Auf dem Startscreen erscheint dann ein Link dorthin.'),
+      el('select', { name: 'modulLink' },
+        el('option', { value: '' }, '–'),
+        MODUL_LINKS.map(([link, name]) => el('option', { value: link, selected: s.modulLink === link }, name)),
+      ),
+    ),
+    el('label', { class: 'feld' }, el('span', { class: 'feld-label' }, 'Wofür (optional)'), wofuer),
     el('label', { class: 'schalter' },
       el('input', { type: 'checkbox', name: 'aktiv', checked: s.aktiv !== false }),
       el('span', {}, 'Aktiv (wird für Tagesschritte verwendet)'),
@@ -150,6 +161,8 @@ export async function renderSchrittForm(main, id) {
       normal: f.get('normal').trim(),
       mini: f.get('mini').trim(),
       werkzeug: f.get('werkzeug') || null,
+      modulLink: f.get('modulLink') || null,
+      wofuerId: f.get('wofuerId') || null,
       aktiv: f.get('aktiv') === 'on',
     };
     if (!daten.titel || !daten.normal || !daten.mini) return;

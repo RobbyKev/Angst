@@ -281,7 +281,7 @@ textarea { resize: vertical; }
   font: inherit;
   font-size: .95rem;
   cursor: pointer;
-  z-index: 10;
+  z-index: 16;
 }
 
 /* Overlay */
@@ -352,3 +352,92 @@ body.vollbild .seite { flex: 1; display: flex; flex-direction: column; }
   .atem-kreis { animation: none; transform: none; width: 120px; height: 120px; }
   * { scroll-behavior: auto !important; }
 }
+
+/* ---------- Ab Phase 2 ---------- */
+.akut-leiste.zwischen { justify-content: space-between; align-items: center; gap: 12px; }
+.uebung-buehne { flex: 1; display: flex; flex-direction: column; padding: 8px 0 16px; }
+.hinweis { color: var(--rost); margin: 8px 0 0; min-height: 0; }
+.hinweis:empty { display: none; }
+.zahl { max-width: 160px; }
+input[type="number"], input[type="time"], input[type="date"], input[type="password"] {
+  font: inherit; font-size: 18px; color: var(--text); background: var(--flaeche);
+  border: 1.5px solid var(--linie); border-radius: 10px; padding: 12px; min-height: var(--touch);
+}
+.unsichtbar { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.datei-btn { position: relative; }
+.datei-btn:focus-within { outline: 3px solid var(--fokus); outline-offset: 2px; }
+.einfach { padding-left: 1.2em; margin: 0 0 1em; }
+.einfach li { margin-bottom: 6px; }
+.wofuer-klein { font-size: .9rem; color: var(--leise); margin: -4px 0 8px; }
+
+/* Regler */
+.regler { margin: 8px 0 16px; }
+.regler-wert { display: block; font-family: var(--schrift-titel); font-size: 2.2rem; text-align: center; margin-bottom: 4px; }
+.regler input[type="range"] { width: 100%; height: var(--touch); accent-color: var(--akzent); }
+.regler-skala { display: flex; justify-content: space-between; }
+
+.knopfwahl { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 16px; }
+
+/* Timer */
+.timer-box { text-align: center; margin: 16px 0; }
+.timer { font-family: var(--schrift-titel); font-size: 3rem; margin: 0; font-variant-numeric: tabular-nums; }
+.abfrage .karte { margin: 8px 0 16px; }
+
+/* Angstleiter */
+.leiter { list-style: none; padding: 0; margin: 16px 0; border-left: 3px solid var(--linie); }
+.stufe {
+  display: grid; grid-template-columns: 52px 1fr; grid-template-rows: auto auto; column-gap: 12px;
+  padding: 12px 14px; margin: 0 0 10px 12px; border-radius: var(--radius);
+  border: 1px solid var(--linie); background: var(--flaeche); color: var(--text); text-decoration: none;
+}
+.stufe-wert { grid-row: span 2; font-family: var(--schrift-titel); font-size: 1.4rem; align-self: center; text-align: center; }
+.stufe-titel { font-weight: 600; }
+.stufe.status-geschafft { border-color: var(--akzent); }
+.stufe.status-geschafft .stufe-status { color: var(--akzent); }
+
+/* Erklärkarten */
+.erklaerkarte { border: 1px solid var(--linie); border-radius: var(--radius); padding: 0 16px; margin: 12px 0; background: var(--flaeche); }
+.erklaerkarte summary { cursor: pointer; min-height: var(--touch); display: flex; align-items: center; gap: 8px; font-weight: 600; list-style-position: inside; }
+.erklaerkarte[open] { padding-bottom: 12px; }
+.erklaerkarte .zeile { justify-content: flex-start; }
+
+/* Mut-Buch */
+.mutbuch { list-style: none; padding: 0; margin: 16px 0; }
+.mutbuch li { display: flex; flex-direction: column; gap: 2px; padding: 12px 0; border-bottom: 1px solid var(--linie); }
+.mutbuch .text-btn { align-self: flex-start; min-height: 36px; padding: 4px 0; }
+
+/* Teufelskreis */
+.kreis { position: relative; width: 100%; max-width: 360px; aspect-ratio: 1; margin: 16px auto 24px; }
+.kreis-ring { position: absolute; inset: 0; width: 100%; height: 100%; }
+.kreis-ring circle { fill: none; stroke: var(--linie); stroke-width: 1.2; }
+.kreis-ring path { fill: none; stroke: var(--akzent); stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; }
+.kreis-knoten {
+  position: absolute; transform: translate(-50%, -50%); width: 34%;
+  background: var(--flaeche); border: 1px solid var(--linie); border-radius: 12px; padding: 6px 8px;
+  display: flex; flex-direction: column; text-align: center; font-size: .8rem; line-height: 1.3;
+}
+.kreis-label { font-weight: 600; color: var(--akzent); }
+.kreis-text { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
+.defusion-vorschau { font-family: var(--schrift-titel); font-size: 1.15rem; margin: 0; }
+.zu-ende textarea { margin-bottom: 8px; }
+
+/* Grafiken */
+.chart { width: 100%; height: auto; display: block; margin: 8px 0; }
+.chart-raster { stroke: var(--linie); stroke-width: 1; }
+.chart-text { fill: var(--leise); font-size: 10px; font-family: var(--schrift-text); }
+.chart-linie { fill: none; stroke: var(--akzent); stroke-width: 1.5; opacity: .35; }
+.chart-linie.chart-punkt { fill: var(--akzent); stroke: none; }
+.chart-linie-stark { opacity: 1; stroke-width: 2.5; }
+.balken-zeile { display: grid; grid-template-columns: 90px 1fr 48px; align-items: center; gap: 8px; margin-bottom: 8px; }
+.balken { height: 14px; border-radius: 7px; background: var(--linie); overflow: hidden; }
+.balken-fuellung { height: 100%; background: var(--akzent); }
+.zahlen { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0; }
+.zahlen div { background: var(--flaeche); border: 1px solid var(--linie); border-radius: var(--radius); padding: 12px; }
+.zahlen dt { font-size: .85rem; color: var(--leise); }
+.zahlen dd { margin: 0; font-family: var(--schrift-titel); font-size: 1.5rem; }
+.gad-frage legend { font-weight: 600; margin-bottom: 4px; }
+
+/* PIN-Sperre */
+.sperre { position: fixed; inset: 0; background: var(--bg); z-index: 15; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.sperre-inhalt { width: 100%; max-width: 320px; text-align: center; }
+.pin-feld { width: 100%; text-align: center; font-size: 1.6rem !important; letter-spacing: .3em; }

@@ -1,6 +1,6 @@
 // Service Worker: macht die App offline nutzbar.
 // Bei jeder Änderung an den Dateien VERSION erhöhen.
-const VERSION = 'durch-v1';
+const VERSION = 'durch-v2';
 const DATEIEN = [
   './',
   './index.html',
@@ -15,6 +15,20 @@ const DATEIEN = [
   './js/start.js',
   './js/schritte.js',
   './js/akut.js',
+  './js/chart.js',
+  './js/uebung.js',
+  './js/leiter.js',
+  './js/koerper.js',
+  './js/mutbuch.js',
+  './js/wofuer.js',
+  './js/sorgen.js',
+  './js/kreis.js',
+  './js/werkzeug.js',
+  './js/verlauf.js',
+  './js/wellen.js',
+  './js/sicherheit.js',
+  './js/daten.js',
+  './js/pin.js',
   './icons/icon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',

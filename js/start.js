@@ -2,12 +2,24 @@
 import { Store } from './store.js';
 import { el, icon, datumLang, skala } from './ui.js';
 import { tagesschrittHeute, andererSchritt, waehleVariante, erledige, rueckgaengig } from './schritte.js';
+import { MODUL_LINKS } from './inhalte.js';
+import { wofuerText, wofuerAnzeige } from './wofuer.js';
+import { aktuellesWochenwerkzeug, werkzeugInfo } from './werkzeug.js';
+import { rueckschlagHinweisFaellig, rueckschlagKarte } from './verlauf.js';
+import { laufendeUebung } from './uebung.js';
 
-const SPAETER = [
-  ['Angstleiter', 2], ['Mut-Buch', 2], ['Wofür', 2],
-  ['Sorgen', 3], ['Teufelskreis', 3],
-  ['Körperübungen', 4], ['Verlauf', 4], ['Plan für Wellen', 4],
+const NAVIGATION = [
+  ['#/leiter', 'Angstleiter'],
+  ['#/sorgen', 'Sorgen'],
+  ['#/kreis', 'Teufelskreis'],
+  ['#/koerper', 'Körperübungen'],
+  ['#/verlauf', 'Verlauf'],
+  ['#/mutbuch', 'Mut-Buch'],
+  ['#/wofuer', 'Wofür'],
+  ['#/wellen', 'Plan für Wellen'],
+  ['#/schritte', 'Schritte-Pool'],
 ];
+const modulName = (link) => MODUL_LINKS.find(([l]) => l === link)?.[1];
 
 export async function renderStart(main) {
   const karte = el('section', { class: 'karte tagesschritt', 'aria-labelledby': 'ts-titel' });
@@ -15,6 +27,7 @@ export async function renderStart(main) {
   async function zeichneSchritt() {
     const { rec, schritt, poolGroesse } = await tagesschrittHeute();
     karte.replaceChildren();
+    karte.append = (...k) => Element.prototype.append.apply(karte, k.flat(Infinity).filter((x) => x != null && x !== false));
 
     if (!rec) {
       karte.append(
@@ -38,6 +51,9 @@ export async function renderStart(main) {
       return;
     }
 
+    const wofuer = wofuerAnzeige(await wofuerText(schritt.wofuerId));
+    const modul = schritt.modulLink ? el('a', { class: 'text-btn', href: schritt.modulLink }, `Zu: ${modulName(schritt.modulLink) || 'Modul'}`) : null;
+
     const variante = (art, label, text) => el('button', {
       type: 'button',
       class: 'variante',
@@ -48,6 +64,7 @@ export async function renderStart(main) {
     karte.append(
       el('p', { class: 'eyebrow' }, 'Heute'),
       el('h2', { id: 'ts-titel' }, schritt.titel),
+      wofuer,
       el('div', { class: 'varianten' },
         variante('normal', 'Normal', schritt.normal),
         variante('mini', 'Mini', schritt.mini),
@@ -57,6 +74,7 @@ export async function renderStart(main) {
         disabled: !rec.variante,
         onclick: async () => { await erledige(rec, schritt); zeichneSchritt(); },
       }, rec.variante ? 'Gemacht' : 'Version wählen'),
+      modul,
       poolGroesse > 1
         ? el('button', { type: 'button', class: 'text-btn', onclick: async () => { await andererSchritt(rec); zeichneSchritt(); } }, 'Anderer Schritt')
         : null,
@@ -87,6 +105,21 @@ export async function renderStart(main) {
   await zeichneSchritt();
   zeichneAngst();
 
+  const ww = await aktuellesWochenwerkzeug();
+  const wwInfo = ww ? werkzeugInfo(ww.werkzeug) : null;
+  const werkzeugKarte = el('section', { class: 'karte karte-leise' },
+    el('p', { class: 'eyebrow' }, 'Wochenwerkzeug'),
+    wwInfo
+      ? [el('h2', {}, wwInfo.name),
+        el('div', { class: 'zeile' },
+          el('a', { class: 'btn', href: wwInfo.link }, 'Öffnen'),
+          el('a', { class: 'text-btn', href: '#/werkzeug' }, ww.dieseWoche ? 'Erklärung · wechseln' : 'Neue Woche: behalten oder wechseln'))]
+      : [el('p', { class: 'leise' }, 'Noch keins gewählt.'), el('a', { class: 'btn', href: '#/werkzeug' }, 'Werkzeug wählen')]);
+
+  const hinweisBox = el('div');
+  if (await rueckschlagHinweisFaellig()) hinweisBox.append(rueckschlagKarte(() => hinweisBox.replaceChildren()));
+  const lauf = await laufendeUebung();
+
   main.append(
     el('header', { class: 'start-kopf' },
       el('div', {},
@@ -95,21 +128,17 @@ export async function renderStart(main) {
       ),
       el('a', { href: '#/einstellungen', class: 'icon-btn', 'aria-label': 'Einstellungen' }, icon('einstellungen')),
     ),
+    lauf ? el('a', { class: 'btn btn-breit', href: lauf.route }, 'Laufende Übung fortsetzen') : null,
     karte,
-    el('section', { class: 'karte karte-leise' },
-      el('p', { class: 'eyebrow' }, 'Wochenwerkzeug'),
-      el('p', { class: 'leise' }, 'Folgt in Phase 4.'),
-    ),
+    werkzeugKarte,
+    hinweisBox,
     el('div', { class: 'akut-zeile' },
       el('a', { href: '#/akut', class: 'btn akut-zugang' }, 'Akut-Modus'),
       angst,
     ),
     el('nav', { class: 'navigation', 'aria-label': 'Bereiche' },
       el('ul', { class: 'nav-liste' },
-        el('li', {}, el('a', { href: '#/schritte' }, 'Schritte-Pool')),
-        SPAETER.map(([name, phase]) => el('li', {},
-          el('span', { class: 'nav-spaeter', 'aria-disabled': 'true' }, name, el('span', { class: 'klein' }, `Phase ${phase}`)),
-        )),
+        NAVIGATION.map(([href, name]) => el('li', {}, el('a', { href }, name))),
       ),
     ),
   );

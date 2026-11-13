@@ -120,3 +120,105 @@ export function overlay(inhalt, { label = 'Dialog', schliessbar = true } = {}) {
   }
   return schliessen;
 }
+
+export function datumKurz(iso) {
+  const d = new Date(iso.length === 10 ? iso + 'T12:00:00' : iso);
+  return d.toLocaleDateString('de-DE', { day: 'numeric', month: 'numeric', year: 'numeric' });
+}
+
+export function datumUhrzeit(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('de-DE', { day: 'numeric', month: 'numeric', year: 'numeric' })
+    + ', ' + d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+}
+
+// Montag der Woche als YYYY-MM-DD
+export function wochenStart(d = new Date()) {
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const tag = (x.getDay() + 6) % 7;
+  x.setDate(x.getDate() - tag);
+  return heute(x);
+}
+
+export function plusTage(n, d = new Date()) {
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  x.setDate(x.getDate() + n);
+  return heute(x);
+}
+
+export function tageSeit(iso) {
+  return (Date.now() - new Date(iso).getTime()) / 86400000;
+}
+
+// Schieberegler mit großer Zahl
+export function regler(min, max, schritt, wert, label, einheit = '') {
+  const aus = el('output', { class: 'regler-wert' }, `${wert}${einheit}`);
+  const input = el('input', { type: 'range', min: String(min), max: String(max), step: String(schritt), value: String(wert), 'aria-label': label });
+  input.addEventListener('input', () => { aus.textContent = `${input.value}${einheit}`; });
+  const box = el('div', { class: 'regler' }, aus, input,
+    el('div', { class: 'regler-skala leise klein', 'aria-hidden': 'true' }, el('span', {}, `${min}${einheit}`), el('span', {}, `${max}${einheit}`)));
+  box.wert = () => Number(input.value);
+  return box;
+}
+
+export function feld(label, eingabe, hilfe) {
+  return el('label', { class: 'feld' },
+    el('span', { class: 'feld-label' }, label),
+    hilfe ? el('span', { class: 'leise klein' }, hilfe) : null,
+    eingabe);
+}
+
+export function textfeld(name, wert = '', { mehrzeilig = false, placeholder = '', required = false, rows = 3 } = {}) {
+  return mehrzeilig
+    ? el('textarea', { name, rows: String(rows), placeholder, required }, wert || '')
+    : el('input', { type: 'text', name, value: wert || '', placeholder, required, autocomplete: 'off' });
+}
+
+export function karte(...kinder) {
+  return el('section', { class: 'karte' }, ...kinder);
+}
+
+export function erklaerung(titel, saetze, istEntwurf = true) {
+  return el('details', { class: 'erklaerkarte' },
+    el('summary', {}, titel, istEntwurf ? [' ', entwurf()] : null),
+    [].concat(saetze).map((s) => el('p', {}, s)));
+}
+
+export function leer(text) {
+  return el('p', { class: 'leise' }, text);
+}
+
+export const EINGETRETEN = [['ja', 'Ja'], ['nein', 'Nein'], ['teilweise', 'Teilweise']];
+export const eingetretenText = (w) => ({ ja: 'eingetreten', nein: 'nicht eingetreten', teilweise: 'teilweise eingetreten', offen: 'offen' }[w] || w);
+
+// Einfache Einzelauswahl als Knopfreihe
+export function knopfwahl(optionen, beiWahl, { gewaehlt = null, label = 'Auswahl' } = {}) {
+  const box = el('div', { class: 'knopfwahl', role: 'group', 'aria-label': label });
+  let aktuell = gewaehlt;
+  const knoepfe = optionen.map(([wert, name]) => el('button', {
+    type: 'button', class: 'chip', 'aria-pressed': String(gewaehlt === wert),
+    onclick: () => {
+      aktuell = wert;
+      knoepfe.forEach((k, i) => k.setAttribute('aria-pressed', String(optionen[i][0] === wert)));
+      if (beiWahl) beiWahl(wert);
+    },
+  }, name));
+  box.append(...knoepfe);
+  box.wert = () => aktuell;
+  return box;
+}
+
+export function download(dateiname, inhalt, typ) {
+  const blob = new Blob([inhalt], { type: typ });
+  const url = URL.createObjectURL(blob);
+  const a = el('a', { href: url, download: dateiname });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+// Aktuelle Seite neu zeichnen (ohne Neuladen)
+export function neuZeichnen() {
+  window.dispatchEvent(new HashChangeEvent('hashchange'));
+}
